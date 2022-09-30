@@ -14,9 +14,14 @@ def LS_estimation(sample_x, sample_y):
 
 
 def RLS_estimation(sample_x, sample_y, RLS_lambda=1):
-    """ regularized  least-squares (RLS) estimation """
+    """ regularized least-squares (RLS) estimation """
     inver_matrix = np.linalg.inv(sample_x.dot(sample_x.transpose()) + RLS_lambda * np.identity(len(sample_x)))
     theta = inver_matrix.dot(sample_x).dot(sample_y)
+    return theta
+
+def LASSO_estimation(sample_x, sample_y, LASSO_lambda=1):
+    """ LASSO estimation """
+    mat1 = sample_x.dot(sample_x.transpose())
     return theta
 
 
