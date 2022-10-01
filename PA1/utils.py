@@ -4,8 +4,8 @@ Tools for other main files
 import numpy as np
 
 
-def get_data(path_folder):
-    """ get data from folder """
+def get_polydata(path_folder):
+    """ get polydata from folder """
     sample_x = np.loadtxt(f"{path_folder}polydata_data_sampx.txt")
     sample_y = np.loadtxt(f"{path_folder}polydata_data_sampy.txt")
     poly_x = np.loadtxt(f"{path_folder}polydata_data_polyx.txt")
@@ -19,8 +19,8 @@ def get_data(path_folder):
     return sample_x, sample_y, poly_x, poly_y
 
 
-def feature_trans(features, K):
-    """ feature transformation """
+def poly_feature_trans(features, K):
+    """ poly feature transformation """
     def helper(feature, K):
         """ helper function """
         tranformed_feature = [feature ** k for k in range(K + 1)]
@@ -35,6 +35,6 @@ def feature_trans(features, K):
 
 if __name__ == "__main__":
     path_folder = "./data/"
-    sample_x, sample_y, poly_x, poly_y = get_data(path_folder)
-    fearture_matrix = feature_trans(sample_x, 5)
+    sample_x, sample_y, poly_x, poly_y = get_polydata(path_folder)
+    fearture_matrix = poly_feature_trans(sample_x, 5)
     print(fearture_matrix.shape == (50, 6))
