@@ -2,7 +2,6 @@
 Implement the above 5 regression algorithms for the K-th order polynomial
 """
 import numpy as np
-import scipy
 import cvxopt
 import matplotlib.pyplot as plt
 

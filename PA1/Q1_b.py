@@ -33,12 +33,7 @@ if __name__ == "__main__":
     # RR_estimation
     RR_theta = RR_estimation(sample_x, sample_y)        # (K + 1, 1)
     RR_pre = prediction(poly_x, RR_theta)               # (100, 1)
-    print(RR_theta)
 
     # BR_estimation
     theta_mean, theta_cov = BR_estimation(sample_x, sample_y)        
-    # theta_mean: (K + 1, 1)
-    # theta_cov: (K + 1, K + 1)
     estimate_mean, estimate_variance = BR_prediction(poly_x, theta_mean, theta_cov)  # (100, 1)
-    print(estimate_mean)
-    print(estimate_variance)
