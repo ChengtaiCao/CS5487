@@ -6,6 +6,10 @@ import cvxopt
 import matplotlib.pyplot as plt
 
 
+cvxopt.solvers.options['show_progress'] = False
+# salient optimization message
+
+
 def LS_estimation(sample_x, sample_y):
     """ 
     Least-squares (LS) Estimation
@@ -64,7 +68,7 @@ def LASSO_estimation(sample_x, sample_y, LASSO_lambda=1):
     qp_result = cvxopt.solvers.qp(cvxopt.matrix(H), cvxopt.matrix(f), cvxopt.matrix(g), cvxopt.matrix(values))['x']
     # qp_result: (2 * (K + 1, 1)
     theta = [qp_result[i] - qp_result[i + feature_dimension] for i in range(feature_dimension)]
-    theta = np.array(theta).transpose()
+    theta = np.matrix(theta).transpose()
     # theta: [K + 1, 1]
     return theta
 

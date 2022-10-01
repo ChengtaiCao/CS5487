@@ -5,7 +5,15 @@ import numpy as np
 
 
 def get_polydata(path_folder):
-    """ get polydata from folder """
+    """ 
+    Get Polydata from Folder
+    path_folder: folder path
+    return: training data & testing data
+        sample_x: training x: (50, 1)
+        sample_y: training y: (50, 1)
+        poly_x: testing x: (100, 1)
+        poly_y: testing y: (100, 1)
+    """
     sample_x = np.loadtxt(f"{path_folder}polydata_data_sampx.txt")
     sample_y = np.loadtxt(f"{path_folder}polydata_data_sampy.txt")
     poly_x = np.loadtxt(f"{path_folder}polydata_data_polyx.txt")
@@ -20,7 +28,12 @@ def get_polydata(path_folder):
 
 
 def poly_feature_trans(features, K):
-    """ poly feature transformation """
+    """ 
+    Poly Feature Transformation
+    features: input feature: [N, 1]
+    return: fearture_matrix after transformed
+        fearture_matrix: [K, N]
+    """
     def helper(feature, K):
         """ helper function """
         tranformed_feature = [feature ** k for k in range(K + 1)]
@@ -33,8 +46,16 @@ def poly_feature_trans(features, K):
     return fearture_matrix
 
 
-if __name__ == "__main__":
-    path_folder = "./data/"
-    sample_x, sample_y, poly_x, poly_y = get_polydata(path_folder)
-    fearture_matrix = poly_feature_trans(sample_x, 5)
-    print(fearture_matrix.shape == (50, 6))
+def get_error(estimation_y, poly_y):
+    """ 
+    Mean-Squared Error for estimation_y & poly_y
+    estimation_y: estimation y: [100, 1]
+    poly_y: ground truth y: [100, 1]
+    return: mse_error: scalar
+    """
+    estimation_y = np.array(estimation_y)
+    poly_y = np.array(poly_y)
+    total_error = ((estimation_y - poly_y) ** 2).sum()
+    print(estimation_y.shape)
+    mse_error = total_error/(len(estimation_y))
+    return mse_error
