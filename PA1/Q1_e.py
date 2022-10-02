@@ -1,6 +1,6 @@
 """
-Q1_b.py
-Implementation of 5 Regression Algorithms for The 5-th Order Polynomial
+Q1_e.py
+Implementation Higher-order Polynomial (10)
 """
 from utils import *
 from regression_algorithm import *
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # N_sample = 50 * ratio
     # N_poly = 100                       
 
-    K = 5
+    K = 10
     sample_x_tran = poly_feature_trans(sample_x, K)          # (K + 1, 50 * ratio)
     poly_x_tran = poly_feature_trans(poly_x, K)              # (K + 1, 100)
     # LS_estimation

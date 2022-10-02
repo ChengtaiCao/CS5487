@@ -1,6 +1,6 @@
 """
-Q1_b.py
-Implementation of 5 Regression Algorithms for The 5-th Order Polynomial
+Q1_d.py
+Implementation of Add Some Outliers to Sample_y
 """
 from utils import *
 from regression_algorithm import *
@@ -15,6 +15,9 @@ if __name__ == "__main__":
     # poly_y: (100, 1)
     # N_sample = 50 * ratio
     # N_poly = 100                       
+    
+    # add outlier
+    sample_y = add_outlier(sample_y)
 
     K = 5
     sample_x_tran = poly_feature_trans(sample_x, K)          # (K + 1, 50 * ratio)

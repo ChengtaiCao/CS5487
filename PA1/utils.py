@@ -2,6 +2,7 @@
 Tools for other main files
 """
 import pdb
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -152,3 +153,18 @@ def plot_figure_for_training_size(LS_errors, RLS_errors, LASSO_errors, RR_errors
     plt.plot(x, BR_errors_mean, 'o-', color="#FF9900", label="BR")
     plt.legend(loc=1)
     plt.show()
+
+
+def add_outlier(sample_y):
+    """ 
+    Add Outlier to Sample_y
+    sample_y: training y: (50 * ratio, 1)
+    return: sample_y with outliers : (50 * ratio, 1)
+    """
+    sample_size = sample_y.shape[0]
+    outlier_num = 5
+    for _ in range(outlier_num):
+        location = random.randint(0, sample_size - 1)
+        outlier = random.uniform(5, 10)
+        sample_y[location][0] = outlier
+    return sample_y
