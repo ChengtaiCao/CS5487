@@ -162,6 +162,25 @@ def plot_figure(figure_num, title, sample_x, sample_y, poly_x, esitimation_y):
     plt.show()
 
 
+def plot_figure_2(figure_num, title, poly_x, poly_y, esitimation_y):
+    """ 
+    Plot Figure
+    figure_num: number of figure
+    title: title of figure
+    poly_x: testing x
+    poly_y: testing y (ground truth)
+    esitimation_y: esitimation_y
+    """
+    plt.figure(figure_num)
+    plt.title(title)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.plot(poly_x, poly_y, '^', color="blue", label="truth")
+    plt.plot(poly_x, esitimation_y, '.', color="red", label="prediction")
+    plt.legend()
+    plt.show()
+
+
 def BR_plot_figure(figure_num, title, sample_x, sample_y, poly_x, esitimation_y, estimate_variance):
     """ 
     Plot Figure for BR
@@ -186,7 +205,39 @@ def BR_plot_figure(figure_num, title, sample_x, sample_y, poly_x, esitimation_y,
     variance_list = []
     estimate_variance = np.array(estimate_variance)
     for i in range(len(estimate_variance)):
-        variance_list.append(estimate_variance[i][i])
+        variance_list.append(estimate_variance[i][i] ** 0.5)
+
+    r1 = list(map(lambda x: x[0]+abs(x[1]), zip(esitimation_y, variance_list)))
+    r2 = list(map(lambda x: x[0]-abs(x[1]), zip(esitimation_y, variance_list)))
+    plt.fill_between(poly_x, r1, r2, color="#FF3399", alpha=0.2)
+    plt.legend()
+    plt.show()
+
+
+def BR_plot_figure_2(figure_num, title, poly_x, poly_y, esitimation_y, estimate_variance):
+    """ 
+    Plot Figure for BR
+    figure_num: number of figure
+    title: title of figure
+    poly_x: testing x
+    poly_y: testing y (ground truth)
+    esitimation_y: esitimation_y
+    esitimation_var: esitimation_y_variance
+    """
+    plt.figure(figure_num)
+    plt.title(title)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.plot(poly_x, poly_y, '^', color="blue", label="truth")
+    plt.plot(poly_x, esitimation_y, '.', color="red", label="prediction")
+
+    poly_x = list(np.squeeze(poly_x))
+    esitimation_y = np.array(esitimation_y)
+    esitimation_y = list(np.squeeze(esitimation_y))
+    variance_list = []
+    estimate_variance = np.array(estimate_variance)
+    for i in range(len(estimate_variance)):
+        variance_list.append(estimate_variance[i][i] ** 0.5)
 
     r1 = list(map(lambda x: x[0]+abs(x[1]), zip(esitimation_y, variance_list)))
     r2 = list(map(lambda x: x[0]-abs(x[1]), zip(esitimation_y, variance_list)))

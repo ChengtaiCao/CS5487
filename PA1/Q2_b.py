@@ -94,6 +94,6 @@ if __name__ == "__main__":
     sample_x = sample_x.transpose()[:,0]
     poly_x = poly_x.transpose()[:,0]
     for i in range(1, 5):
-        plot_figure(i, title_dict[i], sample_x, sample_y, poly_x, esitimation_y_dict[i])
+        plot_figure_2(i, title_dict[i], poly_x, poly_y, esitimation_y_dict[i])
     # plot figure for BR
-    BR_plot_figure(5, "BR_Estimation", sample_x, sample_y, poly_x, estimate_mean, estimate_variance)
+    BR_plot_figure_2(5, "BR_Estimation", poly_x, poly_y, estimate_mean, estimate_variance)

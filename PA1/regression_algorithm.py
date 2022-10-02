@@ -86,12 +86,12 @@ def RR_estimation(sample_x, sample_y):
     sample_x_tran = sample_x.transpose()
     f = np.concatenate((np.zeros((feature_dimension, 1)), np.ones((trainging_num, 1))), axis=0)
     # f: (feature_dimension + trainging_num, 1)
-    H = np.zeros((2 * trainging_num, feature_dimension + c))
+    H = np.zeros((2 * trainging_num, feature_dimension + trainging_num))
     H[:trainging_num, :feature_dimension] = -1 * sample_x_tran
     H[:trainging_num, feature_dimension:] = -1 * np.identity(trainging_num)
     H[trainging_num:, :feature_dimension] = sample_x_tran
     H[trainging_num:, feature_dimension:] = -1 * np.identity(trainging_num)
-    # H: (trainging_num, feature_dimension + feature_dimension)
+    # H: (2 * trainging_num, feature_dimension + feature_dimension)
     G = np.concatenate((-1 * sample_y, sample_y), axis=0)
     # G: (N_train, 1)
     lp_result = cvxopt.solvers.lp(cvxopt.matrix(f), cvxopt.matrix(H), cvxopt.matrix(G))['x']
