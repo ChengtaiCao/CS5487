@@ -1,24 +1,24 @@
 """
-Implement the above 5 regression algorithms for the K-th order polynomial
+Q1_b.py
+Implementation of 5 regression algorithms for the 5-th order polynomial
 """
 from utils import *
 from regression_algorithm import *
 
 
 if __name__ == "__main__":
-    K = 5
     path_folder = "./data/"
     sample_x, sample_y, poly_x, poly_y = get_polydata(path_folder)
+    # sample_x: (50, 1)
     # sample_y: (50, 1)
+    # poly_x: (100, 1)
     # poly_y: (100, 1)
     # N_sample = 50
     # N_poly = 100                       
+
+    K = 5
     sample_x_tran = poly_feature_trans(sample_x, K)          # (K + 1, 50)
     poly_x_tran = poly_feature_trans(poly_x, K)              # (K + 1, 100)
-
-
-    ################################################################## 
-    # 1_B 
     # LS_estimation
     LS_theta = LS_estimation(sample_x_tran, sample_y)        # (K + 1, 1)
     LS_pre = prediction(poly_x_tran, LS_theta)               # (100, 1)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # BR_estimation
     theta_mean, theta_cov = BR_estimation(sample_x_tran, sample_y)        
     estimate_mean, estimate_variance = BR_prediction(poly_x_tran, theta_mean, theta_cov)  # (100, 1)
-    BR_mse_error = get_error(RLS_pre, estimate_mean)
+    BR_mse_error = get_error(estimate_mean, poly_y)
     print(f"BR_mse_error: {BR_mse_error}")
 
     # plot figure

@@ -7,7 +7,7 @@ import cvxopt
 
 cvxopt.solvers.options['show_progress'] = False
 # salient optimization message
-hyper_parameter = 3
+hyper_parameter = 1
 # regularization ratio
 
 def LS_estimation(sample_x, sample_y):

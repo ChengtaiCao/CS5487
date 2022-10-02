@@ -1,11 +1,12 @@
 """
 Tools for other main files
 """
+import pdb
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-def get_polydata(path_folder):
+def get_polydata(path_folder, ratio=1):
     """ 
     Get Polydata from Folder
     path_folder: folder path
@@ -22,6 +23,15 @@ def get_polydata(path_folder):
 
     sample_x = sample_x.reshape(-1, 1)
     sample_y = sample_y.reshape(-1, 1)
+    # random shuffile
+    state = np.random.get_state()
+    np.random.shuffle(sample_x)
+    np.random.set_state(state)
+    np.random.shuffle(sample_y)
+    # get subset of data
+    ratio_length = int(sample_x.shape[0] * ratio)
+    sample_x = sample_x[:ratio_length]
+    sample_y = sample_y[:ratio_length]
     poly_x = poly_x.reshape(-1, 1)
     poly_y = poly_y.reshape(-1, 1)
 
@@ -77,7 +87,7 @@ def plot_figure(figure_num, title, sample_x, sample_y, poly_x, esitimation_y):
     plt.ylabel('y')
     plt.plot(sample_x, sample_y, '^', color="blue", label="sample")
     plt.plot(poly_x, esitimation_y, '.', color="red", label="poly")
-    plt.legend(loc=1, ncol=1)
+    plt.legend(loc=1)
     plt.show()
 
 
@@ -110,5 +120,35 @@ def BR_plot_figure(figure_num, title, sample_x, sample_y, poly_x, esitimation_y,
     r1 = list(map(lambda x: x[0]+abs(x[1]), zip(esitimation_y, variance_list)))
     r2 = list(map(lambda x: x[0]-abs(x[1]), zip(esitimation_y, variance_list)))
     plt.fill_between(poly_x, r1, r2, color="#FF3399", alpha=0.2)
-    plt.legend()
+    plt.legend(loc=1)
+    plt.show()
+
+
+def plot_figure_for_training_size(LS_errors, RLS_errors, LASSO_errors, RR_errors, BR_errors):
+    """ 
+    Plot Figure for Training Size
+    split_num = 10
+    repeat_num = 10
+    LS_errors: error array [split_num, repeat_num] 
+    RLS_errors: error array [split_num, repeat_num] 
+    LASSO_errors: error array [split_num, repeat_num] 
+    RR_errors: error array [split_num, repeat_num] 
+    BR_errors: error array [split_num, repeat_num] 
+    """
+    LS_errors_mean = np.mean(LS_errors, axis=1)
+    RLS_errors_mean = np.mean(RLS_errors, axis=1)
+    LASOO_errors_mean = np.mean(LASSO_errors, axis=1)
+    RR_errors_mean = np.mean(RR_errors, axis=1)
+    BR_errors_mean = np.mean(BR_errors, axis=1)
+
+    plt.title("Error Versus Training Size")
+    plt.xlabel('Ratio')
+    plt.ylabel('Error')
+    x = [0.1 + i * 0.1 for i in range(10)]
+    plt.plot(x, LS_errors_mean, 'o-', color="#ff0080", label="LS")
+    plt.plot(x, RLS_errors_mean, 'o-', color="#3300FF", label="RLS")
+    plt.plot(x, LASOO_errors_mean, 'o-', color="#33FF00", label="LASSO")
+    plt.plot(x, RR_errors_mean, 'o-', color="#9966FF", label="RR")
+    plt.plot(x, BR_errors_mean, 'o-', color="#FF9900", label="BR")
+    plt.legend(loc=1)
     plt.show()
