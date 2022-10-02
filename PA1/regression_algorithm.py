@@ -3,12 +3,12 @@ Implement the above 5 regression algorithms for the K-th order polynomial
 """
 import numpy as np
 import cvxopt
-import matplotlib.pyplot as plt
 
 
 cvxopt.solvers.options['show_progress'] = False
 # salient optimization message
-
+hyper_parameter = 3
+# regularization ratio
 
 def LS_estimation(sample_x, sample_y):
     """ 
@@ -40,7 +40,7 @@ def RLS_estimation(sample_x, sample_y, RLS_lambda=1):
     return theta
 
 
-def LASSO_estimation(sample_x, sample_y, LASSO_lambda=1):
+def LASSO_estimation(sample_x, sample_y, LASSO_lambda=hyper_parameter):
     """ 
     LASSO Estimation
     min 1/2 theta^T * H * theta + f^T * theta, g^T * theta >= 0
@@ -100,7 +100,7 @@ def RR_estimation(sample_x, sample_y):
     return theta
 
 
-def BR_estimation(sample_x, sample_y, BR_alpha=1, BR_variance = 5):
+def BR_estimation(sample_x, sample_y, BR_alpha=hyper_parameter, BR_variance=5):
     """ 
     Bayesian Regression (BR) Estimation
     sample_x: batch of transformed input: [K + 1, 50]
