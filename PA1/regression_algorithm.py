@@ -85,13 +85,13 @@ def RR_estimation(sample_x, sample_y):
     trainging_num = sample_x.shape[1]
     sample_x_tran = sample_x.transpose()
     f = np.concatenate((np.zeros((feature_dimension, 1)), np.ones((trainging_num, 1))), axis=0)
-    # f: (56, 1)
-    H = np.zeros((2 * trainging_num, feature_dimension + trainging_num))
+    # f: (feature_dimension + trainging_num, 1)
+    H = np.zeros((2 * trainging_num, feature_dimension + c))
     H[:trainging_num, :feature_dimension] = -1 * sample_x_tran
     H[:trainging_num, feature_dimension:] = -1 * np.identity(trainging_num)
     H[trainging_num:, :feature_dimension] = sample_x_tran
     H[trainging_num:, feature_dimension:] = -1 * np.identity(trainging_num)
-    # H: (100, 56)
+    # H: (trainging_num, feature_dimension + feature_dimension)
     G = np.concatenate((-1 * sample_y, sample_y), axis=0)
     # G: (N_train, 1)
     lp_result = cvxopt.solvers.lp(cvxopt.matrix(f), cvxopt.matrix(H), cvxopt.matrix(G))['x']
@@ -121,10 +121,10 @@ def BR_estimation(sample_x, sample_y, BR_alpha=hyper_parameter, BR_variance=5):
 def prediction(poly_x, theta):
     """ 
     Prediction 
-    poly_x: batch of transformed input: (feature_dimension, 100)
+    poly_x: batch of transformed input: (feature_dimension, N_test)
     theta: estimated parameter: (feature_dimension, 1)
     return: estimation poly_y
-        estimate_y: (100, 1)
+        estimate_y: (N_test, 1)
     """
     poly_x_tran = poly_x.transpose()
     estimate_y = poly_x_tran.dot(theta)
@@ -134,16 +134,16 @@ def prediction(poly_x, theta):
 def BR_prediction(poly_x, theta_mean, theta_cov):
     """ 
     Bayesion Prediction 
-    poly_x: batch of transformed input: (feature_dimension, 100)
+    poly_x: batch of transformed input: (feature_dimension, N_test)
     theta_mean: estimated parameter mean: (feature_dimension, 1)
     theta_cov: estimated parameter convaraince: (feature_dimension, 1 + 1)
     return: estimation polt_y
-        estimate_mean: (100, 1)
-        estimate_variance: (100, 100)
+        estimate_mean: (N_test, 1)
+        estimate_variance: (N_test, N_test)
     """
     poly_x_tran = poly_x.transpose()
     estimate_mean = poly_x_tran.dot(theta_mean)
-    # (100, 1)
+    # (N_test, 1)
     estimate_variance = poly_x_tran.dot(theta_cov).dot(poly_x)
-    # (100, 100)
+    # (N_test, N_test)
     return estimate_mean, estimate_variance
