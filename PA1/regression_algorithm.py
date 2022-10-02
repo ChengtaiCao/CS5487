@@ -1,5 +1,5 @@
 """
-Implement the above 5 regression algorithms for the K-th order polynomial
+Implement the Above 5 Regression Algorithms for the K-th Order Polynomial
 """
 import numpy as np
 import cvxopt
@@ -13,10 +13,10 @@ hyper_parameter = 1
 def LS_estimation(sample_x, sample_y):
     """ 
     Least-squares (LS) Estimation
-    sample_x: batch of transformed input: [K + 1, 50]
-    sample_y: batch of output: [N_train, 1]
+    sample_x: batch of transformed input: (feature_dimension, N_train)
+    sample_y: batch of output: (N_train, 1)
     return: estimation parameters
-        theta: [K + 1, 1]
+        theta: (feature_dimension, 1)
     """
     sample_x_tran = sample_x.transpose()
     inver_matrix = np.linalg.inv(sample_x.dot(sample_x_tran))
@@ -27,11 +27,11 @@ def LS_estimation(sample_x, sample_y):
 def RLS_estimation(sample_x, sample_y, RLS_lambda=1):
     """ 
     Regularized least-squares (RLS) Estimation
-    sample_x: batch of transformed input: [K + 1, 50]
-    sample_y: batch of output: [N_train, 1]
+    sample_x: batch of transformed input: (feature_dimension, N_train)
+    sample_y: batch of output: (N_train, 1)
     RLS_lambda: hyper-parameter for regularization term
     return: estimation parameters
-        theta: [K + 1, 1]
+        theta: (feature_dimension, 1)
     """
     feature_dimension = sample_x.shape[0]
     sample_x_tran = sample_x.transpose()
@@ -44,11 +44,11 @@ def LASSO_estimation(sample_x, sample_y, LASSO_lambda=hyper_parameter):
     """ 
     LASSO Estimation
     min 1/2 theta^T * H * theta + f^T * theta, g^T * theta >= 0
-    sample_x: batch of transformed input: [K + 1, 50]
-    sample_y: batch of output: [50, 1]
+    sample_x: batch of transformed input: (fearturn_dimension, N_train)
+    sample_y: batch of output: (N_train, 1)
     LASSO_lambda: hyper-parameter for regularization term
     return: estimation parameters
-        theta: [K + 1, 1]
+        theta: (feature_dimension, 1)
     """
     feature_dimension = sample_x.shape[0]
     sample_x_tran = sample_x.transpose()
@@ -57,29 +57,29 @@ def LASSO_estimation(sample_x, sample_y, LASSO_lambda=hyper_parameter):
     H[:feature_dimension, feature_dimension:] = -1 * sample_x.dot(sample_x_tran)
     H[feature_dimension:, :feature_dimension] = -1 * sample_x.dot(sample_x_tran)
     H[feature_dimension:, feature_dimension:] = sample_x.dot(sample_x_tran)
-    # H: (2 * (K + 1), 2 * (K + 1))
-    x_y = sample_x.dot(sample_y)    # x_y: [K + 1, 1]
+    # H: (2 * feature_dimension, 2 * feature_dimension)
+    x_y = np.array(sample_x.dot(sample_y))    # x_y: (feature_dimension, 1)
     f = LASSO_lambda * np.ones((2 * feature_dimension, 1)) - np.concatenate((x_y, -1 * x_y), axis=0)
-    # f: (2 * (K + 1, 1)
+    # f: (2 * feature_dimension, 1)
     g = -1 * np.identity(2 * feature_dimension)
-    # g: (2 * (K + 1), 2 * (K + 1))
+    # g: (2 * feature_dimension, 2 * feature_dimension)
     values = np.zeros((2 * feature_dimension, 1))
-    # value: (2 * (K + 1, 1)
+    # value: (2 * feature_dimension, 1)
     qp_result = cvxopt.solvers.qp(cvxopt.matrix(H), cvxopt.matrix(f), cvxopt.matrix(g), cvxopt.matrix(values))['x']
-    # qp_result: (2 * (K + 1, 1)
+    # qp_result: (2 * feature_dimension, 1)
     theta = [qp_result[i] - qp_result[i + feature_dimension] for i in range(feature_dimension)]
     theta = np.matrix(theta).transpose()
-    # theta: [K + 1, 1]
+    # theta: (feature_dimension, 1)
     return theta
 
 
 def RR_estimation(sample_x, sample_y):
     """ 
     Robust Regression (RR) estimation
-    sample_x: batch of transformed input: [K + 1, 50]
-    sample_y: batch of output: [50, 1]
+    sample_x: batch of transformed input: (feature_dimension, N_train)
+    sample_y: batch of output: (N_train, 1)
     return: estimation parameters
-        theta: [K + 1, 1]
+        theta: (feature_dimension, 1)
     """
     feature_dimension = sample_x.shape[0]
     trainging_num = sample_x.shape[1]
@@ -93,22 +93,22 @@ def RR_estimation(sample_x, sample_y):
     H[trainging_num:, feature_dimension:] = -1 * np.identity(trainging_num)
     # H: (100, 56)
     G = np.concatenate((-1 * sample_y, sample_y), axis=0)
-    # G: (50, 1)
+    # G: (N_train, 1)
     lp_result = cvxopt.solvers.lp(cvxopt.matrix(f), cvxopt.matrix(H), cvxopt.matrix(G))['x']
     theta = lp_result[:feature_dimension]
-    # theta: [K + 1, 1]
+    # theta: (feature_dimension, 1)
     return theta
 
 
 def BR_estimation(sample_x, sample_y, BR_alpha=hyper_parameter, BR_variance=5):
     """ 
     Bayesian Regression (BR) Estimation
-    sample_x: batch of transformed input: [K + 1, 50]
-    sample_y: batch of output: [50, 1]
+    sample_x: batch of transformed input: (feature_dimension, N_train)
+    sample_y: batch of output: (N_train, 1)
     BR_alpha: variance of prior
     return: estimation parameters
-        theta_mean: [K + 1, 1]
-        theta_cov: [K + 1, K + 1]
+        theta_mean: (feature_dimension, 1)
+        theta_cov: (feature_dimension, feature_dimension)
     """
     feature_dimension = sample_x.shape[0]
     sample_x_tran = sample_x.transpose()
@@ -121,10 +121,10 @@ def BR_estimation(sample_x, sample_y, BR_alpha=hyper_parameter, BR_variance=5):
 def prediction(poly_x, theta):
     """ 
     Prediction 
-    poly_x: batch of transformed input: [K + 1, 100]
-    theta: estimated parameter: [K + 1, 1]
+    poly_x: batch of transformed input: (feature_dimension, 100)
+    theta: estimated parameter: (feature_dimension, 1)
     return: estimation poly_y
-        estimate_y: [100, 1]
+        estimate_y: (100, 1)
     """
     poly_x_tran = poly_x.transpose()
     estimate_y = poly_x_tran.dot(theta)
@@ -134,12 +134,12 @@ def prediction(poly_x, theta):
 def BR_prediction(poly_x, theta_mean, theta_cov):
     """ 
     Bayesion Prediction 
-    poly_x: batch of transformed input: [K + 1, 100]
-    theta_mean: estimated parameter mean: [K + 1, 1]
-    theta_cov: estimated parameter convaraince: [K + 1, 1 + 1]
+    poly_x: batch of transformed input: (feature_dimension, 100)
+    theta_mean: estimated parameter mean: (feature_dimension, 1)
+    theta_cov: estimated parameter convaraince: (feature_dimension, 1 + 1)
     return: estimation polt_y
-        estimate_mean: [100, 1]
-        estimate_variance: [100, 100]
+        estimate_mean: (100, 1)
+        estimate_variance: (100, 100)
     """
     poly_x_tran = poly_x.transpose()
     estimate_mean = poly_x_tran.dot(theta_mean)
