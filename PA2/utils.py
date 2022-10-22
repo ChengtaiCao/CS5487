@@ -2,10 +2,11 @@
 Tools for Other Main Files
 feature_dimension = d
 """
-import random
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+np.random.seed(1)
 
 POINT_COLOR = {
     0: 'red',
@@ -49,3 +50,22 @@ def plot_kmeans(sample_x, cur_z, figure_num, plot_title):
         cluster_index = np.argmax(cur_z[i])
         plt.plot(sample_x[i][0], sample_x[i][1], '.', color=POINT_COLOR[cluster_index])
     plt.show()
+
+
+# def plot_emgmm(sample_x, cur_z, figure_num, plot_title):
+#     """
+#     Plot for em-gmm
+#     sample_x: (num_sample, d)
+#     cur_pis: (num_sample, K)
+#     figure_num: figure number: int
+#     plot_name: plot_title: string
+#     """
+#     num_sample, K = cur_z.shape
+#     plt.figure(figure_num)
+#     plt.title(plot_title)
+#     plt.xlabel('x1')
+#     plt.ylabel('x2')
+#     for i in range(num_sample):
+#         cluster_index = np.argmax(cur_z[i])
+#         plt.plot(sample_x[i][0], sample_x[i][1], '.', color=POINT_COLOR[cluster_index])
+#     plt.show()
