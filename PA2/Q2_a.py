@@ -2,12 +2,9 @@
 Q2_a.py
 Three Clustering Algorithms for Image Segmentation
 """
-from ntpath import join
 import numpy as np
 from PIL import Image
 from scipy.cluster.vq import whiten
-
-import sklearn.cluster as ms
 
 from utils import *
 from cluster_algorithm import *
