@@ -2,8 +2,10 @@
 Tools for Other Main Files
 feature_dimension = d
 """
+import pdb
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 
 np.random.seed(1)
@@ -33,7 +35,7 @@ def get_data(data_name):
     return sample_x, sample_y
 
 
-def plot_kmeans(sample_x, cur_z, figure_num, plot_title):
+def plot1(sample_x, cur_z, figure_num, plot_title):
     """
     Plot for K-Means
     sample_x: (num_sample, d)
@@ -41,7 +43,7 @@ def plot_kmeans(sample_x, cur_z, figure_num, plot_title):
     figure_num: figure number: int
     plot_name: plot_title: string
     """
-    num_sample, K = cur_z.shape
+    num_sample = cur_z.shape[0]
     plt.figure(figure_num)
     plt.title(plot_title)
     plt.xlabel('x1')
@@ -52,20 +54,22 @@ def plot_kmeans(sample_x, cur_z, figure_num, plot_title):
     plt.show()
 
 
-# def plot_emgmm(sample_x, cur_z, figure_num, plot_title):
-#     """
-#     Plot for em-gmm
-#     sample_x: (num_sample, d)
-#     cur_pis: (num_sample, K)
-#     figure_num: figure number: int
-#     plot_name: plot_title: string
-#     """
-#     num_sample, K = cur_z.shape
-#     plt.figure(figure_num)
-#     plt.title(plot_title)
-#     plt.xlabel('x1')
-#     plt.ylabel('x2')
-#     for i in range(num_sample):
-#         cluster_index = np.argmax(cur_z[i])
-#         plt.plot(sample_x[i][0], sample_x[i][1], '.', color=POINT_COLOR[cluster_index])
-#     plt.show()
+def plot2(sample_x, labels, num_peak, figure_num, plot_title):
+    """
+    Plot for Mean-Shift
+    sample_x: (num_sample, d)
+    labels: (num_sample,)
+    num_peak: scalar
+    figure_num: figure number: int
+    plot_name: plot_title: string
+    """
+    num_sample = len(labels)
+    colors = cm.rainbow(np.linspace(0, 1, num_peak))
+    plt.figure(figure_num)
+    plt.title(plot_title)
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+    for i in range(num_sample):
+        cluster_index = labels[i]
+        plt.plot(sample_x[i][0], sample_x[i][1], '.', color=colors[cluster_index])
+    plt.show()

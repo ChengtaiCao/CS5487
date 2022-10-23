@@ -7,7 +7,7 @@ from scipy.stats import multivariate_normal
 
 
 np.random.seed(1)
-EPSILON = 10e-7
+EPSILON = 1e-3
 MAX_ITER = 10e4
 
 
@@ -118,7 +118,7 @@ def k_means(sample_x, K, epsilon=EPSILON, max_iter=MAX_ITER):
     return cur_means, cur_z
 
 
-# EM algorithm for Gaussian mixture models (EM-GMM)
+# EM for Gaussian Mixture Models (EM-GMM)
 def init_gmm(sample_x, K):
     """ 
     Getting Initialized Statistics fpr GMM
@@ -202,7 +202,7 @@ def MStep(sample_x, cur_z):
 
 def em_gmm(sample_x, K, epsilon=EPSILON, max_iter=MAX_ITER):
     """
-    Implementation of K-Means
+    Implementation of EM-GMM
     sample_x: (num_sample, d)
     K: number of cluster
     epsilon: change bound
@@ -229,4 +229,110 @@ def em_gmm(sample_x, K, epsilon=EPSILON, max_iter=MAX_ITER):
     return cur_means, cur_covs, cur_pis
 
 
-# Mean-shift algorithm
+# Mean-Shift
+def gaussian_kernel_function(distance, bandwidth):
+    """
+    Gaussian Kernel Function
+    distance: scalar
+    bandwidth: scalar
+    return:
+        weight: scalar
+    """
+    value1 = (bandwidth * np.sqrt(2 * np.pi))
+    value2 = -0.5 * (distance / bandwidth) ** 2
+    weight = 1 / value1 * np.exp(value2)
+    return weight
+
+
+def shift_one(sample_one, sample_x, bandwidth):
+    """
+    Shift for One Sample
+    sample_one: one sample: (d,)
+    sample_x: (num_sample, d)
+    bandwidth: scalar
+    return:
+        point: (d,)
+    """
+    feature_dimension = sample_x.shape[1]
+    point = np.zeros(feature_dimension)
+    scale = 0
+    for x in sample_x:
+        distance = euclidean_distance(x, sample_one)
+        weight = gaussian_kernel_function(distance, bandwidth)
+        point += (x * weight)
+        scale += weight
+    point = point / scale
+    return point
+
+
+def shift_all(sample_x, bandwidth, epsilon):
+    """
+    Shift for All Sample
+    sample_x: (num_sample, d)
+    bandwidth: scalar
+    epsilon: change bound
+    return:
+        sample_x_shift: (num_sample, d)
+    """
+    num_sample = sample_x.shape[0]
+    flags = [True] * num_sample
+    sample_x_shift = np.array(sample_x)
+    while True:
+        max_distance = -float("inf")
+        for i in range(num_sample):
+            if not flags[i]:
+                continue
+            sample_one = sample_x_shift[i]
+            sample_x_shift[i] = shift_one(sample_one, sample_x, bandwidth)
+            distance = euclidean_distance(sample_one, sample_x_shift[i])
+            max_distance = max(max_distance, distance)
+            flags[i] = (distance >= epsilon)
+        if max_distance < epsilon:
+            break
+    
+    return sample_x_shift
+
+
+def ms_cluster(sample_x_shift, cluster_epsilon=0.1):
+    """
+    Cluster for Mean-Shift
+    sample_x_shift: (num_sample, d)
+    return:
+        cur_z: (num_sample, K)
+        index: num_peak: scalar
+    """
+    sample_x_shift = sample_x_shift.tolist()
+    means = []
+    labels = []
+    num_peak = 0
+
+    for i, sample_one in enumerate(sample_x_shift):
+        if (len(labels) == 0):
+            labels.append(num_peak)
+            means.append(sample_one)
+            num_peak += 1
+        else:
+            for mean_one in means:
+                distance = euclidean_distance(np.array(sample_one), np.array(mean_one))
+                if distance < cluster_epsilon:
+                    labels.append(means.index(mean_one))
+            if (len(labels) < i + 1):
+                # not find mean in "for mean_one in means"
+                labels.append(num_peak)
+                means.append(sample_one)
+                num_peak += 1
+    return labels, num_peak
+
+
+def mean_shift(sample_x, epsilon=EPSILON):
+    """
+    Implementation of Mean-Shift
+    sample_x: (num_sample, d)
+    epsilon: change bound
+    return:
+        labels: (num_sample)
+    """
+    BANDWIDTH = 1.5
+    sample_x_shift = shift_all(sample_x, BANDWIDTH, epsilon)
+    labels, num_peak = ms_cluster(sample_x_shift)
+    return labels, num_peak
