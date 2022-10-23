@@ -2,6 +2,7 @@
 Implement the Above 3 Clustering Algorithms
 feature_dimension = d
 """
+import pdb
 import numpy as np
 from scipy.stats import multivariate_normal
 
@@ -225,7 +226,6 @@ def em_gmm(sample_x, K, epsilon=EPSILON, max_iter=MAX_ITER):
         mean_change = np.max([euclidean_distance(update_means[k], cur_means[k]) for k in range(K)])
         # reassign cur_means, cur_covs, cur_pis
         cur_means, cur_covs, cur_pis = update_means, update_covs, update_pis
-    print(iter_count)
     return cur_means, cur_covs, cur_pis
 
 
@@ -293,7 +293,7 @@ def shift_all(sample_x, bandwidth, epsilon):
     return sample_x_shift
 
 
-def ms_cluster(sample_x_shift, cluster_epsilon=0.1):
+def ms_cluster(sample_x_shift, cluster_epsilon):
     """
     Cluster for Mean-Shift
     sample_x_shift: (num_sample, d)
@@ -305,7 +305,6 @@ def ms_cluster(sample_x_shift, cluster_epsilon=0.1):
     means = []
     labels = []
     num_peak = 0
-
     for i, sample_one in enumerate(sample_x_shift):
         if (len(labels) == 0):
             labels.append(num_peak)
@@ -316,6 +315,7 @@ def ms_cluster(sample_x_shift, cluster_epsilon=0.1):
                 distance = euclidean_distance(np.array(sample_one), np.array(mean_one))
                 if distance < cluster_epsilon:
                     labels.append(means.index(mean_one))
+                    break
             if (len(labels) < i + 1):
                 # not find mean in "for mean_one in means"
                 labels.append(num_peak)
@@ -324,15 +324,15 @@ def ms_cluster(sample_x_shift, cluster_epsilon=0.1):
     return labels, num_peak
 
 
-def mean_shift(sample_x, epsilon=EPSILON):
+def mean_shift(sample_x, bandwidth, epsilon=EPSILON):
     """
     Implementation of Mean-Shift
     sample_x: (num_sample, d)
-    epsilon: change bound
+    bandwidth: bandwidth: scalar
+    epsilon: change bound: scalar
     return:
         labels: (num_sample)
     """
-    BANDWIDTH = 1.5
-    sample_x_shift = shift_all(sample_x, BANDWIDTH, epsilon)
-    labels, num_peak = ms_cluster(sample_x_shift)
+    sample_x_shift = shift_all(sample_x, bandwidth, epsilon)
+    labels, num_peak = ms_cluster(sample_x_shift, bandwidth)
     return labels, num_peak

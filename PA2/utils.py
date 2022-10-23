@@ -2,10 +2,15 @@
 Tools for Other Main Files
 feature_dimension = d
 """
+from enum import Flag
 import pdb
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import os
+import pylab as pl
+
+from pa2 import labels2seg, colorsegms
 
 
 np.random.seed(1)
@@ -73,3 +78,49 @@ def plot2(sample_x, labels, num_peak, figure_num, plot_title):
         cluster_index = labels[i]
         plt.plot(sample_x[i][0], sample_x[i][1], '.', color=colors[cluster_index])
     plt.show()
+
+
+def get_images(input_path = "./images"):
+    """
+    Get Images for Problem 2
+    input_path: image path
+    return:
+        res: path list
+    """
+    res = []
+    for filename in os.listdir(input_path):
+        res.append(input_path + "/" + filename)
+    return res
+
+
+def plot3(img, L, cur_z, figure_num, plot_title, flag=False):
+    """
+    Plot for Problem 2
+    img: img
+    L: scalar
+    cur_z: (num_sample, K)
+    figure_num: figure number: int
+    plot_title: plot title
+    flag: if Mean-Shift, True
+    """
+    pl.figure(figure_num)
+    pl.subplot(1, 3, 1)
+    pl.title('Original Image')
+    pl.imshow(img)
+    
+    if not flag:
+        num_sample = cur_z.shape[0]
+        cur_z = np.array([np.argmax(cur_z[i]) for i in range(num_sample)])
+    else:
+        cur_z = np.array(cur_z)
+    
+    seg = labels2seg(cur_z, L)
+    pl.subplot(1, 3, 2)
+    pl.title('Segmentation')
+    pl.imshow(seg)
+
+    color_seg = colorsegms(seg, img)
+    pl.subplot(1, 3, 3)
+    pl.title(plot_title)
+    pl.imshow(color_seg)
+    pl.show()
