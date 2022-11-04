@@ -7,10 +7,10 @@ FILE_PATH = "./digits4000_txt"
 
 
 if __name__ == "__main__":
-    train_ds_mu, test_x_1, test_y_1 = get_data(FILE_PATH)
+    train_ds_mu, test_x_1, test_y_1 = get_mix_data(FILE_PATH)
     input_shape = test_x_1.shape[1:]
     num_classes = test_y_1.shape[-1]
-    model = get_model(input_shape, num_classes)
+    model = get_model2(input_shape, num_classes)
     model.summary()
     batch_size = 128
     epochs = 200

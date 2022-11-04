@@ -5,7 +5,8 @@ import numpy as np
 import pdb
 import tensorflow as tf
 import keras
-from tensorflow.keras import layers
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten
+from tensorflow.keras.layers import Dropout, Dense, BatchNormalization
 
 
 AUTO = tf.data.AUTOTUNE
@@ -14,6 +15,42 @@ AUTO = tf.data.AUTOTUNE
 def get_data(file_path):
     """
     Get Data
+    Input:
+        file_path: file path
+    Return:
+        train_x_1: trial 1 train input  (num_sampels, 28, 28, 1)
+        train_y_1: trial 1 train ouput  (num_sampels, num_classes)
+        test_x_1: trial 1 test input    (num_sampels, 28, 28, 1)
+        test_y_1: trial 1 test ouput    (num_sampels, num_classes)
+        train_x_2: trial 2 train input  (num_sampels, 28, 28, 1)
+        train_y_2: trial 2 train ouput  (num_sampels, num_classes)
+        test_x_2: trial 2 test input    (num_sampels, 28, 28, 1)
+        test_y_2: trial 2 test ouput    (num_sampels, num_classes)
+        
+    """
+    NUM_CLASS = 10
+    X_path = f"{file_path}/digits4000_digits_vec.txt"
+    Y_path = f"{file_path}/digits4000_digits_labels.txt"
+
+    X = np.loadtxt(X_path).astype(np.float32)
+    X /= 255
+    # reshape as (-1, 28, 28, 1)
+    X = tf.reshape(X, [-1, 28, 28, 1])
+    Y = np.loadtxt(Y_path)
+    # one-hot encoding
+    Y = keras.utils.to_categorical(Y, NUM_CLASS)
+
+    train_x_1, train_y_1 = X[:2000], Y[:2000]
+    test_x_1, test_y_1 = X[2000:], Y[2000:]
+    train_x_2, train_y_2 = X[2000:], Y[2000:]
+    test_x_2, test_y_2 = X[:2000], Y[:2000]
+
+    return train_x_1, train_y_1, test_x_1, test_y_1, train_x_2, train_y_2, test_x_2, test_y_2
+
+
+def get_mix_data(file_path):
+    """
+    Get Mixed Data
     Input:
         file_path: file path
     Return:
@@ -75,14 +112,44 @@ def get_model(input_shape, num_classes, nonlinear="relu"):
     """
     model = keras.Sequential([
         keras.Input(shape=input_shape),
-        layers.Conv2D(32, kernel_size=(3, 3), activation=nonlinear),
-        layers.MaxPooling2D(pool_size=(2, 2)),
-        layers.Conv2D(64, kernel_size=(3, 3), activation=nonlinear),
-        layers.MaxPooling2D(pool_size=(2, 2)),
-        layers.Flatten(),
-        layers.Dropout(0.5),
-        layers.Dense(num_classes, activation="softmax"),
+        Conv2D(32, kernel_size=(3, 3), activation=nonlinear),
+        MaxPooling2D(pool_size=(2, 2)),
+        Conv2D(64, kernel_size=(3, 3), activation=nonlinear),
+        MaxPooling2D(pool_size=(2, 2)),
+        Flatten(),
+        Dropout(0.5),
+        Dense(num_classes, activation="softmax"),
     ])
+    return model
+
+
+def get_model2(input_shape, num_classes, nonlinear="relu"):
+    """
+    Get Model
+    Input:
+        input_shape: input shape
+        num_classes: num of classes
+        activate: activate function
+    Return:
+        model
+    """
+    model = keras.Sequential([
+        keras.Input(shape=input_shape),
+        Conv2D(filters=64, kernel_size = (3,3), activation=nonlinear),
+        Conv2D(filters=64, kernel_size = (3,3), activation=nonlinear),
+        MaxPooling2D(pool_size=(2,2)),
+        BatchNormalization(),
+        Conv2D(filters=128, kernel_size = (3,3), activation=nonlinear),
+        Conv2D(filters=128, kernel_size = (3,3), activation=nonlinear),
+        MaxPooling2D(pool_size=(2,2)),
+        BatchNormalization(),
+        Conv2D(filters=256, kernel_size = (3,3), activation=nonlinear),
+        MaxPooling2D(pool_size=(2,2)),
+        BatchNormalization(),
+        Flatten(),
+        Dense(512,activation=nonlinear),
+        Dense(num_classes,activation="softmax")
+    ])  
     return model
 
 
@@ -96,12 +163,21 @@ def sample_beta_distribution(size, concentration_0=0.2, concentration_1=0.2):
     return:
         mixup ratio: (size)
     """
-    gamma_1_sample = tf.random.gamma(shape=[size], alpha=concentration_1)
-    gamma_2_sample = tf.random.gamma(shape=[size], alpha=concentration_0)
+    gamma_1_sample = tf.random.gamma(shape=[size], alpha=concentration_0)
+    gamma_2_sample = tf.random.gamma(shape=[size], alpha=concentration_1)
     return gamma_1_sample / (gamma_1_sample + gamma_2_sample)
 
 
 def mix_up(ds_one, ds_two, alpha=0.2):
+    """
+    Sample Beta Distribution
+    input:
+        ds_one: batch one
+        ds_two: batch two
+        alpha: parameter for beta distribution
+    return:
+        (images, labels)
+    """
     images_one, labels_one = ds_one
     images_two, labels_two = ds_two
     batch_size = tf.shape(images_one)[0]

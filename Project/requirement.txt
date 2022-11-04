@@ -1,6 +1,3 @@
 numpy
-cvxopt
-matplotlib
-PIL
 tensorflow
 sklearn
