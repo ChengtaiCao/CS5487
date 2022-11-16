@@ -1,77 +1,140 @@
 """
-Implementation of Model
+Implementation of Deep Learning Model
 """
 import tensorflow as tf
+import keras_tuner as kt
 import keras
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Activation
 from tensorflow.keras.layers import Dropout, Dense, BatchNormalization
 from tensorflow.keras import activations
 
 
-def get_shallow_cnn(input_shape, num_classes=10, dropout=0.25, reg=0.01):
+def get_shallow_cnn(hp):
     """
     Get Shallow CNN Model
     Input:
-        input_shape: input shape
-        num_classes: num of classes
-        activate: activate function
+        hp: keras_tuner.HyperParameters
     Return:
         model
     """
-    model = keras.Sequential([
-        keras.Input(shape=input_shape),
+    filter_num_1 = hp.Choice(name="filter_num_1", values= [32, 64])
+    filter_num_2 = hp.Choice(name="filter_num_2", values= [32, 64])
 
-        Conv2D(32, kernel_size=(3, 3)),
+    dropouts = hp.Float(name="dropouts", min_value=0.1, max_value=0.2, step=0.1)
+    regs = hp.Float(name="regs", min_value=0.01, max_value=0.02, step=0.01)
+    lrs = hp.Float(name="lrs", min_value=0.001, max_value=0.002, step=0.001)
+
+    model = keras.Sequential([
+        keras.Input(shape=(28, 28, 1)),
+
+        Conv2D(filter_num_1, kernel_size=(3, 3)),
         BatchNormalization(),
         Activation(activations.relu),
         MaxPooling2D(pool_size=(2, 2)),
 
-        Conv2D(64, kernel_size=(3, 3)),
+        Conv2D(filter_num_2, kernel_size=(3, 3)),
         BatchNormalization(),
         Activation(activations.relu),
         MaxPooling2D(pool_size=(2, 2)),
 
         Flatten(),
-        Dropout(dropout),
-        Dense(num_classes, activation="softmax", kernel_regularizer=tf.keras.regularizers.l2(reg)),
+        Dropout(dropouts),
+        Dense(10, activation="softmax", kernel_regularizer=tf.keras.regularizers.l2(regs)),
     ])
+
+    model.compile(loss=tf.keras.losses.categorical_crossentropy,
+                        optimizer=tf.keras.optimizers.Adam(lrs),
+                        metrics=['accuracy'])
 
     return model
 
 
-def get_deep_cnn(input_shape, num_classes=10, dropout=0.25, reg=0.01):
+def get_deep_cnn(hp):
     """
-    Get Shallow CNN Model
+    Get Deep CNN Model
     Input:
-        input_shape: input shape
-        num_classes: num of classes
-        activate: activate function
+        hp: keras_tuner.HyperParameters
     Return:
         model
     """
+    filter_num_1 = hp.Choice(name="filter_num_1", values= [32, 64])
+    filter_num_2 = hp.Choice(name="filter_num_2", values= [32, 64])
+    filter_num_3 = hp.Choice(name="filter_num_3", values= [32, 64])
+
+    hidden = hp.Choice(name="hidden", values= [128, 256])
+
+    dropouts = hp.Float(name="dropouts", min_value=0.1, max_value=0.2, step=0.1)
+    regs = hp.Float(name="regs", min_value=0.01, max_value=0.02, step=0.01)
+    lrs = hp.Float(name="lrs", min_value=0.001, max_value=0.002, step=0.001)
+
     model = keras.Sequential([
-        keras.Input(shape=input_shape),
+        keras.Input(shape=(28, 28, 1)),
 
-        Conv2D(32, kernel_size=(3, 3)),
+        Conv2D(filter_num_1, kernel_size=(3, 3)),
         BatchNormalization(),
         Activation(activations.relu),
         MaxPooling2D(pool_size=(2, 2)),
 
-        Conv2D(64, kernel_size=(3, 3)),
+        Conv2D(filter_num_2, kernel_size=(3, 3)),
         BatchNormalization(),
         Activation(activations.relu),
         MaxPooling2D(pool_size=(2, 2)),
 
-        Conv2D(128, kernel_size=(3, 3)),
+        Conv2D(filter_num_3, kernel_size=(3, 3)),
         BatchNormalization(),
         Activation(activations.relu),
         MaxPooling2D(pool_size=(2, 2)),
 
         Flatten(),
-        Dropout(dropout),
-        Dense(256, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(reg)),
-        Dropout(dropout),
-        Dense(num_classes, activation="softmax", kernel_regularizer=tf.keras.regularizers.l2(reg)),
+        Dropout(dropouts),
+        Dense(hidden, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(regs)),
+        Dropout(dropouts),
+        Dense(10, activation="softmax", kernel_regularizer=tf.keras.regularizers.l2(regs)),
     ])
+
+    model.compile(loss=tf.keras.losses.categorical_crossentropy,
+                        optimizer=tf.keras.optimizers.Adam(lrs),
+                        metrics=['accuracy'])
+    return model
+
+
+def get_MLP(hp):
+    """
+    Get MLP Model
+    Input:
+        hp: keras_tuner.HyperParameters
+    Return:
+        model
+    """
+    hidden_1 = hp.Choice(name="hidden_1", values= [256, 512])
+    hidden_2 = hp.Choice(name="hidden_2", values= [256, 512])
+    hidden_3 = hp.Choice(name="hidden_3", values= [256, 512])
+
+    dropouts = hp.Float(name="dropouts", min_value=0.1, max_value=0.2, step=0.1)
+    regs = hp.Float(name="regs", min_value=0.01, max_value=0.02, step=0.01)
+    lrs = hp.Float(name="lrs", min_value=0.001, max_value=0.002, step=0.001)
+
+    model = keras.Sequential([
+        keras.Input(shape=(784)),
+
+        Dense(hidden_1, kernel_regularizer=tf.keras.regularizers.l2(regs)),
+        BatchNormalization(),
+        Activation(activations.relu),
+
+        Dense(hidden_2, kernel_regularizer=tf.keras.regularizers.l2(regs)),
+        BatchNormalization(),
+        Activation(activations.relu),
+
+        Dense(hidden_3, kernel_regularizer=tf.keras.regularizers.l2(regs)),
+        BatchNormalization(),
+        Activation(activations.relu),
+ 
+        Dropout(dropouts),
+        Dense(10, activation="softmax", kernel_regularizer=tf.keras.regularizers.l2(regs)),
+    ])
+
+    model.compile(loss=tf.keras.losses.categorical_crossentropy,
+                        optimizer=tf.keras.optimizers.Adam(lrs),
+                        metrics=['accuracy'])
 
     return model
