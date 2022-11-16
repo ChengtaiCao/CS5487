@@ -9,10 +9,8 @@ from model import *
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 
 
-FILE_PATH = "./digits4000_txt"
-
-
 if __name__ == "__main__":
+    FILE_PATH = "./digits4000_txt"
     # parse config
     parser = argparse.ArgumentParser()
     parser.add_argument('--aug', default=None, 
