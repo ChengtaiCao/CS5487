@@ -9,6 +9,7 @@ from model import *
 
 import keras_tuner as kt
 from tensorflow.keras.callbacks import ReduceLROnPlateau
+from augmentation import *
 
 
 reduceLROnPlat = ReduceLROnPlateau(
@@ -43,14 +44,13 @@ def shallow_function(data_dict, str_txt):
         # search best hyper-parameter
         tuner = kt.Hyperband(get_shallow_cnn,
                     objective="val_accuracy",
-                    max_epochs=2,
+                    max_epochs=120,
                     factor=3,
                     directory="HyperSearch",
                     project_name=f"Shallow_HyperSearch_{i}")
 
         train_ds = (
                 tf.data.Dataset.from_tensor_slices((data["train_x"], data["train_y"]))
-                .batch(BATCH_SIZE)
             )
         
         validation_ds = (
@@ -58,10 +58,13 @@ def shallow_function(data_dict, str_txt):
                 .batch(BATCH_SIZE)
             )
         
+        if str_txt == "FRZ" or str_txt == "Both":
+            train_ds = FRZ_aug(train_ds, BATCH_SIZE, str_txt)
+        if str_txt == "Mixup" or str_txt == "Both":
+            train_ds = Mixup_aug(train_ds, BATCH_SIZE)
+        
         tuner.search(train_ds, epochs=2, validation_data=validation_ds, callbacks=[reduceLROnPlat])
         best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
-        best_filter_num_1 = best_hps.get("filter_num_1")
-        best_filter_num_2 = best_hps.get("filter_num_2")
         best_dropout = best_hps.get("dropouts")
         best_reg = best_hps.get("regs")
         best_lr = best_hps.get("lrs")
@@ -71,14 +74,12 @@ def shallow_function(data_dict, str_txt):
         history = model.fit(
             train_ds,
             validation_data=validation_ds,
-            epochs=2,
+            epochs=100,
             verbose=1,
             callbacks=[reduceLROnPlat])
     
         score = model.evaluate(data["test_x"], data["test_y"], verbose=0)
         str = f"-- Trail {i + 1} --- \n"
-        str += f"the best_filter_num_1 is {best_filter_num_1} \n"
-        str += f"the best_filter_num_2 is {best_filter_num_2} \n"
         str += f"the best_dropout is {best_dropout} \n"
         str += f"the best_reg is {best_reg} \n"
         str += f"the best_lr is {best_lr}"
@@ -110,7 +111,7 @@ def deep_function(data_dict, str_txt):
         # search best hyper-parameter
         tuner = kt.Hyperband(get_deep_cnn,
                     objective="val_accuracy",
-                    max_epochs=2,
+                    max_epochs=120,
                     factor=3,
                     directory="HyperSearch",
                     project_name=f"Deep_HyperSearch_{i}")
@@ -127,10 +128,6 @@ def deep_function(data_dict, str_txt):
         
         tuner.search(train_ds, epochs=2, validation_data=validation_ds, callbacks=[reduceLROnPlat])
         best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
-        best_filter_num_1 = best_hps.get("filter_num_1")
-        best_filter_num_2 = best_hps.get("filter_num_2")
-        best_filter_num_3 = best_hps.get("filter_num_3")
-        best_hidden= best_hps.get("hidden")
         best_dropout = best_hps.get("dropouts")
         best_reg = best_hps.get("regs")
         best_lr = best_hps.get("lrs")
@@ -140,16 +137,12 @@ def deep_function(data_dict, str_txt):
         history = model.fit(
             train_ds,
             validation_data=validation_ds,
-            epochs=2,
+            epochs=100,
             verbose=1,
             callbacks=[reduceLROnPlat])
     
         score = model.evaluate(data["test_x"], data["test_y"], verbose=0)
         str = f"-- Trail {i + 1} --- \n"
-        str += f"the best_filter_num_1 is {best_filter_num_1} \n"
-        str += f"the best_filter_num_2 is {best_filter_num_2} \n"
-        str += f"the best_filter_num_3 is {best_filter_num_3} \n"
-        str += f"the best_hidden is {best_hidden} \n"
         str += f"the best_dropout is {best_dropout} \n"
         str += f"the best_reg is {best_reg} \n"
         str += f"the best_lr is {best_lr}"
@@ -159,7 +152,6 @@ def deep_function(data_dict, str_txt):
         print(strs[i])
         print(scores[i])
     print(f"Deep CNN with {str_txt} augmentation(s) is {np.mean(scores): .4f}")
-
 
 
 def mlp_function(data_dict, str_txt):
@@ -182,7 +174,7 @@ def mlp_function(data_dict, str_txt):
         # search best hyper-parameter
         tuner = kt.Hyperband(get_MLP,
                     objective="val_accuracy",
-                    max_epochs=2,
+                    max_epochs=120,
                     factor=3,
                     directory="HyperSearch",
                     project_name=f"MLP_HyperSearch_{i}")
@@ -199,9 +191,6 @@ def mlp_function(data_dict, str_txt):
         
         tuner.search(train_ds, epochs=2, validation_data=validation_ds, callbacks=[reduceLROnPlat])
         best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
-        hidden_1 = best_hps.get("hidden_1")
-        hidden_2 = best_hps.get("hidden_2")
-        hidden_3 = best_hps.get("hidden_3")
         best_dropout = best_hps.get("dropouts")
         best_reg = best_hps.get("regs")
         best_lr = best_hps.get("lrs")
@@ -211,15 +200,12 @@ def mlp_function(data_dict, str_txt):
         history = model.fit(
             train_ds,
             validation_data=validation_ds,
-            epochs=2,
+            epochs=100,
             verbose=1,
             callbacks=[reduceLROnPlat])
     
         score = model.evaluate(data["test_x"], data["test_y"], verbose=0)
         str = f"-- Trail {i + 1} --- \n"
-        str += f"the hidden_1 is {hidden_1} \n"
-        str += f"the hidden_2 is {hidden_2} \n"
-        str += f"the hidden_3 is {hidden_3} \n"
         str += f"the best_dropout is {best_dropout} \n"
         str += f"the best_reg is {best_reg} \n"
         str += f"the best_lr is {best_lr}"
@@ -236,7 +222,7 @@ if __name__ == "__main__":
     # parse config
     parser = argparse.ArgumentParser()
     parser.add_argument('--aug', default="no", 
-                        choices=["no", "Mixup", "RZS", "both"],
+                        choices=["no", "Mixup", "FRZ", "Both"],
                         help='What kind of data augmentation.')
 
     parser.add_argument('--model', default="Shallow", 
