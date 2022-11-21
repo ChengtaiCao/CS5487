@@ -2,3 +2,4 @@ numpy
 tensorflow
 keras-tuner
 scikit-learn
+joblib

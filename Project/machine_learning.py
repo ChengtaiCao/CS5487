@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression, Perceptron
 from sklearn.svm import SVC
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
-from sklearn.externals import joblib
+import joblib
 from utils import *
 
 
@@ -78,7 +78,7 @@ def kNN_function(data_dict, PCA_flag, str_txt, n_splits=10):
             Ks.append(best_K)
             scores.append(score)
         
-        joblib.dump(pipe, f"models/KNN_trail{i}.pkl")
+        joblib.dump(pipe, f"models/KNN_{str_txt}_trail{i}.pkl")
 
     if PCA_flag:
         print(f"kNN + {str_txt}")
@@ -317,10 +317,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     model = args.model
     PCA_flag = False
-    str_txt = "Without PCA"
+    str_txt = "WithoutPCA"
     if args.PCA == 1:
         PCA_flag = True
-        str_txt = "With PCA"
+        str_txt = "WithPCA"
 
     # read data
     data_dict = get_data(FILE_PATH)
