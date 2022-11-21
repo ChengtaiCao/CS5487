@@ -44,7 +44,7 @@ def shallow_function(data_dict, str_txt):
         # search best hyper-parameter
         tuner = kt.Hyperband(get_shallow_cnn,
                     objective="val_accuracy",
-                    max_epochs=120,
+                    max_epochs=200,
                     factor=3,
                     directory="HyperSearch",
                     project_name=f"Shallow_HyperSearch_{i}")
@@ -74,7 +74,7 @@ def shallow_function(data_dict, str_txt):
         history = model.fit(
             train_ds,
             validation_data=validation_ds,
-            epochs=100,
+            epochs=200,
             verbose=1,
             callbacks=[reduceLROnPlat])
     
@@ -177,7 +177,7 @@ def mlp_function(data_dict, str_txt):
                     max_epochs=120,
                     factor=3,
                     directory="HyperSearch",
-                    project_name=f"MLP_HyperSearch_{i}")
+                    project_name=f"MLP_HyperSearch_{str_txt}_{i}")
 
         train_ds = (
                 tf.data.Dataset.from_tensor_slices((data["train_x"], data["train_y"]))
@@ -191,8 +191,9 @@ def mlp_function(data_dict, str_txt):
         
         tuner.search(train_ds, epochs=2, validation_data=validation_ds, callbacks=[reduceLROnPlat])
         best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
-        best_dropout = best_hps.get("dropouts")
-        best_reg = best_hps.get("regs")
+        hidden_1 = best_hps.get("hidden_1")
+        hidden_2 = best_hps.get("hidden_2")
+        hidden_3 = best_hps.get("hidden_3")
         best_lr = best_hps.get("lrs")
 
         # retrain_model
@@ -206,15 +207,16 @@ def mlp_function(data_dict, str_txt):
     
         score = model.evaluate(data["test_x"], data["test_y"], verbose=0)
         str = f"-- Trail {i + 1} --- \n"
-        str += f"the best_dropout is {best_dropout} \n"
-        str += f"the best_reg is {best_reg} \n"
+        str += f"the hidden_1 is {hidden_1} \n"
+        str += f"the hidden_2 is {hidden_2} \n"
+        str += f"the hidden_3 is {hidden_3} \n"
         str += f"the best_lr is {best_lr}"
         strs.append(str)
         scores.append(score[1])
     for i in range(2):
         print(strs[i])
         print(scores[i])
-    print(f"Deep CNN with {str_txt} augmentation(s) is {np.mean(scores): .4f}")
+    print(f"MAP with {str_txt} augmentation(s) is {np.mean(scores): .4f}")
 
 
 if __name__ == "__main__":

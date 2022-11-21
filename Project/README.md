@@ -24,12 +24,12 @@ python machine_learning.py --model SVM --PCA 1
 
 # MLP
 ## no Aug
-python machine_learning.py --model MLP
+python deep_learning.py --model MLP
 
 # Shallow CNN
 ## no Aug
-python machine_learning.py --model Shallow
+python deep_learning.py --model Shallow
 
 # Deep CNN
 ## no Aug
-python machine_learning.py --model Deep
+python deep_learning.py --model Deep
