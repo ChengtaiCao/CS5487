@@ -7,6 +7,7 @@ from sklearn.linear_model import LogisticRegression, Perceptron
 from sklearn.svm import SVC
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.externals import joblib
 from utils import *
 
 
@@ -23,7 +24,9 @@ def kNN_function(data_dict, PCA_flag, str_txt, n_splits=10):
     Ks = []
     PCAs = []
     scores = []
-    for data in [trail_1, trail_2]:
+    trails = [trail_1, trail_2]
+    for i in range(len(trails)):
+        data = trails[i]
         train_x = data["train_x"]
         train_y = data["train_y"]
         test_x = data["test_x"]
@@ -74,6 +77,8 @@ def kNN_function(data_dict, PCA_flag, str_txt, n_splits=10):
             score = pipe.score(test_x, test_y)
             Ks.append(best_K)
             scores.append(score)
+        
+        joblib.dump(pipe, f"models/KNN_trail{i}.pkl")
 
     if PCA_flag:
         print(f"kNN + {str_txt}")
@@ -100,7 +105,9 @@ def LR_function(data_dict, PCA_flag, str_txt, n_splits=10):
     trail_1, trail_2 = pre_process_ML(data_dict)
     PCAs = []
     scores = []
-    for data in [trail_1, trail_2]:
+    trails = [trail_1, trail_2]
+    for i in range(len(trails)):
+        data = trails[i]
         train_x = data["train_x"]
         train_y = data["train_y"]
         test_x = data["test_x"]
@@ -137,6 +144,7 @@ def LR_function(data_dict, PCA_flag, str_txt, n_splits=10):
             pipe.fit(train_x, train_y)
             score = pipe.score(test_x, test_y)
             scores.append(score)
+        joblib.dump(pipe, f"models/LR_trail{i}.pkl")
 
     if PCA_flag:
         print(f"Logistic Regression + {str_txt}")
@@ -161,7 +169,9 @@ def Perceptron_function(data_dict, PCA_flag, str_txt, n_splits=10):
     trail_1, trail_2 = pre_process_ML(data_dict)
     PCAs = []
     scores = []
-    for data in [trail_1, trail_2]:
+    trails = [trail_1, trail_2]
+    for i in range(len(trails)):
+        data = trails[i]
         train_x = data["train_x"]
         train_y = data["train_y"]
         test_x = data["test_x"]
@@ -198,6 +208,7 @@ def Perceptron_function(data_dict, PCA_flag, str_txt, n_splits=10):
             pipe.fit(train_x, train_y)
             score = pipe.score(test_x, test_y)
             scores.append(score)
+        joblib.dump(pipe, f"models/Perceptron_trail{i}.pkl")
 
     if PCA_flag:
         print(f"Perceptron + {str_txt}")
@@ -223,7 +234,9 @@ def SVM_function(data_dict, PCA_flag, str_txt, n_splits=10):
     best_kernels = []
     PCAs = []
     scores = []
-    for data in [trail_1, trail_2]:
+    trails = [trail_1, trail_2]
+    for i in range(len(trails)):
+        data = trails[i]
         train_x = data["train_x"]
         train_y = data["train_y"]
         test_x = data["test_x"]
@@ -274,6 +287,8 @@ def SVM_function(data_dict, PCA_flag, str_txt, n_splits=10):
             score = pipe.score(test_x, test_y)
             best_kernels.append(best_kernel)
             scores.append(score)
+        
+        joblib.dump(pipe, f"models/SVM_trail{i}.pkl")
 
     if PCA_flag:
         print(f"SVM + {str_txt}")
