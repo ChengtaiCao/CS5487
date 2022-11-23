@@ -57,7 +57,8 @@ def get_deep_cnn(hp):
     filter_1 = hp.Choice(name="filter_1", values= [32, 64, 128])
     filter_2 = hp.Choice(name="filter_2", values= [64, 128, 256])
     filter_3 = hp.Choice(name="filter_3", values= [128, 256, 512])
-    hidden = hp.Choice(name="hidden", values= [512, 256, 1024])
+    filter_4 = hp.Choice(name="filter_4", values= [256, 512, 1024])
+    hidden = hp.Choice(name="hidden", values= [256, 512, 1024])
     lrs = hp.Choice(name="lrs", values=[0.01, 0.1, 0.2])
 
     model = keras.Sequential([
@@ -74,6 +75,11 @@ def get_deep_cnn(hp):
         MaxPooling2D(pool_size=(2, 2)),
 
         Conv2D(filter_3, kernel_size=(3, 3)),
+        BatchNormalization(),
+        Activation(activations.relu),
+        MaxPooling2D(pool_size=(2, 2)),
+
+        Conv2D(filter_4, kernel_size=(3, 3)),
         BatchNormalization(),
         Activation(activations.relu),
         MaxPooling2D(pool_size=(2, 2)),
