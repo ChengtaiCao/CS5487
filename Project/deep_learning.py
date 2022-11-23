@@ -138,6 +138,7 @@ def deep_function(data_dict, str_txt):
         filter_1 = best_hps.get("filter_1")
         filter_2 = best_hps.get("filter_2")
         filter_3 = best_hps.get("filter_3")
+        filter_4 = best_hps.get("filter_4")
         hidden = best_hps.get("hidden")
         best_lr = best_hps.get("lrs")
 
@@ -155,6 +156,7 @@ def deep_function(data_dict, str_txt):
         str += f"the filter_1 is {filter_1} \n"
         str += f"the filter_2 is {filter_2} \n"
         str += f"the filter_3 is {filter_3} \n"
+        str += f"the filter_4 is {filter_4} \n"
         str += f"the hidden is {hidden} \n"
         str += f"the best_lr is {best_lr}"
         strs.append(str)
