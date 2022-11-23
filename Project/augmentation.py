@@ -90,3 +90,48 @@ def mixup(ds_one, ds_two, alpha=0.2):
     images = images_one * x_l + images_two * (1 - x_l)
     labels = labels_one * y_l + labels_two * (1 - y_l)
     return (images, labels)
+
+def Mixup_aug_MLP(train_ds, BATCH_SIZE):
+    """
+    Mixup augmentation for MLP
+    Parameters:
+        train_ds: training data
+        BATCH_SIZE: batch_size
+    return:
+        aug_ds: augmented data
+    """
+    train_ds_one = train_ds.shuffle(BATCH_SIZE * 100).batch(BATCH_SIZE)
+    train_ds_two = train_ds.shuffle(BATCH_SIZE * 100).batch(BATCH_SIZE)
+    train_ds = tf.data.Dataset.zip((train_ds_one, train_ds_two))
+    aug_ds = train_ds.map(
+            lambda ds_one, ds_two: mixup_MLP(ds_one, ds_two, alpha=0.2), num_parallel_calls=AUTOTUNE
+        )
+    return aug_ds
+
+
+def mixup_MLP(ds_one, ds_two, alpha=0.2):
+    """
+    mixup for MLP
+    Parameter:
+        ds_one: data 1
+        ds_two: data 2
+        alpha: hyper-parameter
+    return:
+        images: mixup_ed images
+        labels: mixup_ed labels
+    """
+    # Unpack two datasets
+    images_one, labels_one = ds_one
+    images_two, labels_two = ds_two
+    batch_size = tf.shape(images_one)[0]
+
+    # Sample lambda and reshape it to do the mixup
+    l = sample_beta_distribution(batch_size, alpha, alpha)
+    x_l = tf.reshape(l, (batch_size, 1))
+    y_l = tf.reshape(l, (batch_size, 1))
+
+    # Perform mixup on both images and labels by combining a pair of images/labels
+    # (one from each dataset) into one image/label
+    images = images_one * x_l + images_two * (1 - x_l)
+    labels = labels_one * y_l + labels_two * (1 - y_l)
+    return (images, labels)

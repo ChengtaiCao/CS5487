@@ -44,10 +44,10 @@ def shallow_function(data_dict, str_txt):
         # search best hyper-parameter
         tuner = kt.Hyperband(get_shallow_cnn,
                     objective="val_accuracy",
-                    max_epochs=200,
+                    max_epochs=320,
                     factor=3,
                     directory="HyperSearch",
-                    project_name=f"Shallow_HyperSearch_{i}")
+                    project_name=f"Shallow_HyperSearch_{str_txt}_{i}")
 
         train_ds = (
                 tf.data.Dataset.from_tensor_slices((data["train_x"], data["train_y"]))
@@ -57,16 +57,16 @@ def shallow_function(data_dict, str_txt):
                 tf.data.Dataset.from_tensor_slices((data["validation_x"], data["validation_y"]))
                 .batch(BATCH_SIZE)
             )
-        
-        if str_txt == "FRZ" or str_txt == "Both":
-            train_ds = FRZ_aug(train_ds, BATCH_SIZE, str_txt)
-        if str_txt == "Mixup" or str_txt == "Both":
+
+        if str_txt == "Mixup":
             train_ds = Mixup_aug(train_ds, BATCH_SIZE)
+        else:
+            train_ds = train_ds.batch(BATCH_SIZE)
         
         tuner.search(train_ds, epochs=2, validation_data=validation_ds, callbacks=[reduceLROnPlat])
         best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
-        best_dropout = best_hps.get("dropouts")
-        best_reg = best_hps.get("regs")
+        filter_1 = best_hps.get("filter_1")
+        filter_2 = best_hps.get("filter_2")
         best_lr = best_hps.get("lrs")
 
         # retrain_model
@@ -74,17 +74,20 @@ def shallow_function(data_dict, str_txt):
         history = model.fit(
             train_ds,
             validation_data=validation_ds,
-            epochs=200,
+            epochs=300,
             verbose=1,
             callbacks=[reduceLROnPlat])
     
         score = model.evaluate(data["test_x"], data["test_y"], verbose=0)
         str = f"-- Trail {i + 1} --- \n"
-        str += f"the best_dropout is {best_dropout} \n"
-        str += f"the best_reg is {best_reg} \n"
+        str += f"the filter_1 is {filter_1} \n"
+        str += f"the filter_2 is {filter_2} \n"
         str += f"the best_lr is {best_lr}"
         strs.append(str)
         scores.append(score[1])
+    
+        model.save(f"./models/Shallow_{str_txt}_trail{i}.h5")
+
     for i in range(2):
         print(strs[i])
         print(scores[i])
@@ -111,14 +114,13 @@ def deep_function(data_dict, str_txt):
         # search best hyper-parameter
         tuner = kt.Hyperband(get_deep_cnn,
                     objective="val_accuracy",
-                    max_epochs=120,
+                    max_epochs=320,
                     factor=3,
                     directory="HyperSearch",
-                    project_name=f"Deep_HyperSearch_{i}")
+                    project_name=f"Deep_HyperSearch_{str_txt}_{i}")
 
         train_ds = (
                 tf.data.Dataset.from_tensor_slices((data["train_x"], data["train_y"]))
-                .batch(BATCH_SIZE)
             )
         
         validation_ds = (
@@ -126,10 +128,17 @@ def deep_function(data_dict, str_txt):
                 .batch(BATCH_SIZE)
             )
         
+        if str_txt == "Mixup":
+            train_ds = Mixup_aug(train_ds, BATCH_SIZE)
+        else:
+            train_ds = train_ds.batch(BATCH_SIZE)
+        
         tuner.search(train_ds, epochs=2, validation_data=validation_ds, callbacks=[reduceLROnPlat])
         best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
-        best_dropout = best_hps.get("dropouts")
-        best_reg = best_hps.get("regs")
+        filter_1 = best_hps.get("filter_1")
+        filter_2 = best_hps.get("filter_2")
+        filter_3 = best_hps.get("filter_3")
+        hidden = best_hps.get("hidden")
         best_lr = best_hps.get("lrs")
 
         # retrain_model
@@ -137,17 +146,20 @@ def deep_function(data_dict, str_txt):
         history = model.fit(
             train_ds,
             validation_data=validation_ds,
-            epochs=100,
+            epochs=300,
             verbose=1,
             callbacks=[reduceLROnPlat])
     
         score = model.evaluate(data["test_x"], data["test_y"], verbose=0)
         str = f"-- Trail {i + 1} --- \n"
-        str += f"the best_dropout is {best_dropout} \n"
-        str += f"the best_reg is {best_reg} \n"
+        str += f"the filter_1 is {filter_1} \n"
+        str += f"the filter_2 is {filter_2} \n"
+        str += f"the filter_3 is {filter_3} \n"
+        str += f"the hidden is {hidden} \n"
         str += f"the best_lr is {best_lr}"
         strs.append(str)
         scores.append(score[1])
+        model.save(f"./models/Deep_{str_txt}_trail{i}.h5")
     for i in range(2):
         print(strs[i])
         print(scores[i])
@@ -181,13 +193,17 @@ def mlp_function(data_dict, str_txt):
 
         train_ds = (
                 tf.data.Dataset.from_tensor_slices((data["train_x"], data["train_y"]))
-                .batch(BATCH_SIZE)
             )
         
         validation_ds = (
                 tf.data.Dataset.from_tensor_slices((data["validation_x"], data["validation_y"]))
                 .batch(BATCH_SIZE)
             )
+        
+        if str_txt == "Mixup":
+            train_ds = Mixup_aug_MLP(train_ds, BATCH_SIZE)
+        else:
+            train_ds = train_ds.batch(BATCH_SIZE)
         
         tuner.search(train_ds, epochs=2, validation_data=validation_ds, callbacks=[reduceLROnPlat])
         best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
@@ -213,6 +229,9 @@ def mlp_function(data_dict, str_txt):
         str += f"the best_lr is {best_lr}"
         strs.append(str)
         scores.append(score[1])
+
+        model.save(f"./models/MLP_{str_txt}_trail{i}.h5")
+
     for i in range(2):
         print(strs[i])
         print(scores[i])
@@ -224,7 +243,7 @@ if __name__ == "__main__":
     # parse config
     parser = argparse.ArgumentParser()
     parser.add_argument('--aug', default="no", 
-                        choices=["no", "Mixup", "FRZ", "Both"],
+                        choices=["no", "Mixup"],
                         help='What kind of data augmentation.')
 
     parser.add_argument('--model', default="Shallow", 
