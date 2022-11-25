@@ -105,8 +105,8 @@ def Mixup_aug_MLP(train_ds, BATCH_SIZE):
     return:
         aug_ds: augmented data
     """
-    train_ds_one = train_ds.shuffle(BATCH_SIZE * 100).batch(BATCH_SIZE)
-    train_ds_two = train_ds.shuffle(BATCH_SIZE * 100).batch(BATCH_SIZE)
+    train_ds_one = train_ds.shuffle(BATCH_SIZE * 1000).batch(BATCH_SIZE)
+    train_ds_two = train_ds.shuffle(BATCH_SIZE * 1000).batch(BATCH_SIZE)
     train_ds = tf.data.Dataset.zip((train_ds_one, train_ds_two))
     aug_ds = train_ds.map(
             lambda ds_one, ds_two: mixup_MLP(ds_one, ds_two, alpha=0.2), num_parallel_calls=AUTOTUNE
