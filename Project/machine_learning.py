@@ -11,6 +11,9 @@ import joblib
 from utils import *
 
 
+np.random.seed(42)
+
+
 def kNN_function(data_dict, PCA_flag, str_txt, n_splits=10):
     """
     kNN

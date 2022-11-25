@@ -33,14 +33,8 @@ python deep_learning.py --model MLP
 ## Mixup
 python deep_learning.py --model MLP --aug Mixup
 
-# Shallow CNN
+# CNN
 ## no Aug
-python deep_learning.py --model Shallow
+python deep_learning.py --model CNN
 ## Mixup
-python deep_learning.py --model Shallow --aug Mixup
-
-# Deep CNN
-## no Aug
-python deep_learning.py --model Deep
-## Mixup
-python deep_learning.py --model Deep --aug Mixup
+python deep_learning.py --model CNN --aug Mixup

@@ -9,9 +9,14 @@ from tensorflow.keras.layers import Dropout, Dense, BatchNormalization
 from tensorflow.keras import activations
 
 
-def get_shallow_cnn(hp):
+tf.keras.utils.set_random_seed(
+    42
+)
+
+
+def get_CNN(hp):
     """
-    Get Shallow CNN Model
+    Get CNN Model
     Input:
         hp: keras_tuner.HyperParameters
     Return:
@@ -43,57 +48,6 @@ def get_shallow_cnn(hp):
                         optimizer=tf.keras.optimizers.Adam(lrs),
                         metrics=['accuracy'])
 
-    return model
-
-
-def get_deep_cnn(hp):
-    """
-    Get Deep CNN Model
-    Input:
-        hp: keras_tuner.HyperParameters
-    Return:
-        model
-    """
-    filter_1 = hp.Choice(name="filter_1", values= [32, 64, 128])
-    filter_2 = hp.Choice(name="filter_2", values= [64, 128, 256])
-    filter_3 = hp.Choice(name="filter_3", values= [128, 256, 512])
-    filter_4 = hp.Choice(name="filter_4", values= [256, 512, 1024])
-    hidden = hp.Choice(name="hidden", values= [256, 512, 1024])
-    lrs = hp.Choice(name="lrs", values=[0.01, 0.1, 0.2])
-
-    model = keras.Sequential([
-        keras.Input(shape=(28, 28, 1)),
-
-        Conv2D(filter_1, kernel_size=(3, 3)),
-        BatchNormalization(),
-        Activation(activations.relu),
-        MaxPooling2D(pool_size=(2, 2)),
-
-        Conv2D(filter_2, kernel_size=(3, 3)),
-        BatchNormalization(),
-        Activation(activations.relu),
-        MaxPooling2D(pool_size=(2, 2)),
-
-        Conv2D(filter_3, kernel_size=(3, 3)),
-        BatchNormalization(),
-        Activation(activations.relu),
-        MaxPooling2D(pool_size=(2, 2)),
-
-        Conv2D(filter_4, kernel_size=(3, 3)),
-        BatchNormalization(),
-        Activation(activations.relu),
-        MaxPooling2D(pool_size=(2, 2)),
-
-        Flatten(),
-        Dropout(0.2),
-        Dense(hidden, activation='relu'),
-        Dropout(0.2),
-        Dense(10, activation="softmax"),
-    ])
-
-    model.compile(loss=tf.keras.losses.categorical_crossentropy,
-                        optimizer=tf.keras.optimizers.Adam(lrs),
-                        metrics=['accuracy'])
     return model
 
 

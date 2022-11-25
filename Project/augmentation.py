@@ -7,6 +7,11 @@ import tensorflow as tf
 AUTOTUNE = tf.data.AUTOTUNE
 
 
+tf.keras.utils.set_random_seed(
+    42
+)
+
+
 def FRZ_aug(train_ds, BATCH_SIZE, str_txt):
     """
     flip, rotation, zoom augmentation

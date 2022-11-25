@@ -8,6 +8,7 @@ from sklearn.utils import shuffle
 
 
 SEED = 42
+np.random.seed(SEED)
 
 
 def get_data(file_path, seed=SEED):

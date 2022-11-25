@@ -3,3 +3,6 @@ tensorflow
 keras-tuner
 scikit-learn
 joblib
+matplotlib
+pandas
+seaborn
