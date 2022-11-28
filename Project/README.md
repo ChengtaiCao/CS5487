@@ -38,3 +38,6 @@ python deep_learning.py --model MLP --aug Mixup
 python deep_learning.py --model CNN
 ## Mixup
 python deep_learning.py --model CNN --aug Mixup
+
+# Challenge
+python challenge_test.py
