@@ -3,6 +3,8 @@ conda create -n CS5487 python=3.9
 conda activate CS5487  
 pip install -r requirement.txt  
 
+mkdir models/
+
 # KNN
 ## no PCA
 python machine_learning.py --model kNN 
