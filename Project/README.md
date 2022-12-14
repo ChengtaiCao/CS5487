@@ -1,14 +1,31 @@
-# Dependency
-conda create -n CS5487 python=3.9  
-conda activate CS5487  
-pip install -r requirement.txt  
+# Programming Project -- MNIST Classification
 
+This repo provides an implementation of CS5487 Programming Project (City University of Hong Kong) -- MNIST Classification
+
+## Datasets
+The datasets are provided by course (./digits4000_txt and ./challenge).
+
+## Experimental Dependency (python)
+```shell
+# create virtual environment
+conda create --name=CS5487 python=3.9
+
+# activate virtual environment
+conda activate CS5487
+
+# install dependencies
+pip install -r requirements.txt
+```
+
+## Usage
+```shell
+# create files for models
 mkdir models/
 
 # KNN
 ## no PCA
 python machine_learning.py --model kNN 
-## PCA
+## with PCA
 python machine_learning.py --model kNN --PCA 1
 
 # LR
@@ -43,3 +60,4 @@ python deep_learning.py --model CNN --aug Mixup
 
 # Challenge
 python challenge_test.py
+```
